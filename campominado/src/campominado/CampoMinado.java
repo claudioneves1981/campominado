@@ -19,7 +19,7 @@ public class CampoMinado implements ActionListener,MouseListener
 	JPanel panel;
 	JMenu menu;
 	JMenuBar menubar;
-	JMenuItem NewGame,exitmenu;
+	JMenuItem newgame,exitmenu;
 	int mines,dwn,upp,lft,chk=0;
 
 	public CampoMinado()
@@ -38,11 +38,11 @@ public class CampoMinado implements ActionListener,MouseListener
 
 		menubar = new JMenuBar();
 		menu = new JMenu("Arquivo");
-		NewGame = new JMenuItem("Novo Jogo");
-		NewGame.addActionListener(this);
+		newgame = new JMenuItem("Novo Jogo");
+		newgame.addActionListener(this);
 		exitmenu = new JMenuItem("Sair");
 		exitmenu.addActionListener(this);
-		menu.add(NewGame);
+		menu.add(newgame);
 		menu.add(exitmenu);
 		menubar.add(menu);
 		frame.setJMenuBar(menubar);
@@ -119,7 +119,7 @@ public class CampoMinado implements ActionListener,MouseListener
 
 	public void actionPerformed(ActionEvent e)
 	{
-		if(e.getSource().equals(NewGame))
+		if(e.getSource().equals(newgame))
 		{
 			chk=0;
 
