@@ -5,11 +5,9 @@ import campominado.excecao.SairException;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Tabuleiro {
 
@@ -68,7 +66,7 @@ public class Tabuleiro {
 
     public void abrirTabuleiro(){
         int a = 0;
-        int cont = 0;
+        AtomicInteger finalA = new AtomicInteger();
         for(int linhaAtual = 0; linhaAtual < quantidadeDeLinhas; linhaAtual++) {
             for(int colunaAtual = 0; colunaAtual < quantidadeDeColunas; colunaAtual++) {
                 button[linhaAtual][colunaAtual].setVisible(true);
@@ -78,50 +76,51 @@ public class Tabuleiro {
                 int finalColunaAtual = colunaAtual;
                 if(!label[linhaAtual][colunaAtual].getText().equals("")) {
                     button[linhaAtual][colunaAtual].addActionListener(e -> {
+                        finalA.getAndIncrement();
                         button[finalLinhaAtual][finalColunaAtual].setVisible(false);
-                        abrirCelula(finalLinhaAtual, finalColunaAtual);
-                        //  tem um erro aqui que não consegui decifrar ainda.
+                        c.add(button[finalLinhaAtual][finalColunaAtual]);
+                        if(finalA.getAndIncrement() == 1) {
+                            abrirCelula(finalLinhaAtual, finalColunaAtual);
+                        }
                     });
                 }
                 a++;
             }
         }
-        System.out.println(cont);
-
     }
 
 
         public void abrirCelula(int linhaAtual, int colunaAtual) {
 
             Object[] opcoes = {"Abrir", "(Des)Marcar"};
-
-        try {
             int cont = 0;
-          while(!objetivoAlcancado()) {
+        try {
 
-                int op = JOptionPane.showOptionDialog(null, "Abrir ou (Des)Marcar?", "Abrir ou (Des)Marcar", 1, 3, null, opcoes, null);
+            int op = JOptionPane.showOptionDialog(null, "Abrir ou (Des)Marcar?", "Abrir ou (Des)Marcar", 1, 3, null, opcoes, null);
+
+            if(!objetivoAlcancado()) {
+
                 if (op == 0) {
                         abrirCampo(linhaAtual, colunaAtual);
-                        break;
+                        return;
+
 
                 } else if (op == 1) {
                     alternarMarcacao(linhaAtual, colunaAtual);
-                    break;
+                    return;
 
                 }
-
-
           }
-
-
 
             if(label[linhaAtual][colunaAtual].getText().equals("*")){
                 JOptionPane.showMessageDialog(null, "Você Perdeu!!!");
                 reiniciar();
+
             }
         } catch(ExplosaoException ex){
             JOptionPane.showMessageDialog(null, "Você Perdeu!!!");
             reiniciar();
+
         }
     }
 
@@ -204,13 +203,6 @@ public class Tabuleiro {
         panel.setSize(459, 64);
         panel.setLayout(null);
 
-        exit = new JButton("SAIR");
-        exit.setSize(exit.getPreferredSize());
-        exit.setLocation((newgame.getX() / 2) - (exit.getWidth() / 2), 20);
-        exit.setBackground(Color.LIGHT_GRAY);
-        exit.addActionListener(e -> System.exit(0));
-        c.add(exit);
-
         field = new JTextField("Jogo Iniciado");
         field.setFont(new Font("Times New Roman", Font.BOLD, 14));
         field.setSize(field.getPreferredSize());
@@ -244,12 +236,16 @@ public class Tabuleiro {
     }
 
     public boolean objetivoAlcancado() {
+
         return campos.stream().allMatch(Campo::objetivoAlcancado);
+
     }
 
     public void reiniciar() {
         campos.forEach(Campo::reiniciar);
+        associarVizinhos();
         sortearMinas();
+        limparCampos();
     }
 
 
