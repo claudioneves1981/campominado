@@ -77,9 +77,10 @@ public class Tabuleiro {
                 if(!label[linhaAtual][colunaAtual].getText().equals("")) {
                     button[linhaAtual][colunaAtual].addActionListener(e -> {
                         finalA.getAndIncrement();
-                        button[finalLinhaAtual][finalColunaAtual].setVisible(false);
                         c.add(button[finalLinhaAtual][finalColunaAtual]);
                         if(finalA.getAndIncrement() == 1) {
+                            button[finalLinhaAtual][finalColunaAtual].setVisible(false);
+                            label[finalLinhaAtual][finalColunaAtual].setVisible(false);
                             abrirCelula(finalLinhaAtual, finalColunaAtual);
                         }
                     });
