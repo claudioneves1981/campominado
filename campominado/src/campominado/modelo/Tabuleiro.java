@@ -80,7 +80,6 @@ public class Tabuleiro {
                         c.add(button[finalLinhaAtual][finalColunaAtual]);
                         if(finalA.getAndIncrement() == 1) {
                             button[finalLinhaAtual][finalColunaAtual].setVisible(false);
-                            label[finalLinhaAtual][finalColunaAtual].setVisible(false);
                             abrirCelula(finalLinhaAtual, finalColunaAtual);
                         }
                     });
