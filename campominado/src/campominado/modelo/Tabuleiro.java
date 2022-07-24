@@ -38,10 +38,14 @@ public class Tabuleiro {
         button = new JButton[this.quantidadeDeLinhas][this.quantidadeDeColunas];
         label = new JLabel[this.quantidadeDeLinhas][this.quantidadeDeColunas];
 
+        frame = new JFrame("Campo Minado");
+
+
         gerarCampos();
         associarVizinhos();
         sortearMinas();
         limparCampos();
+        //campos.clear();
         //executarJogo();
 
     }
@@ -67,24 +71,38 @@ public class Tabuleiro {
     public void abrirTabuleiro(){
         int a = 0;
         AtomicInteger finalA = new AtomicInteger();
+        finalA.set(a);
         for(int linhaAtual = 0; linhaAtual < quantidadeDeLinhas; linhaAtual++) {
             for(int colunaAtual = 0; colunaAtual < quantidadeDeColunas; colunaAtual++) {
-                button[linhaAtual][colunaAtual].setVisible(true);
-                label[linhaAtual][colunaAtual].setText(campos.get(a).toString());
-                c.add(button[linhaAtual][colunaAtual]);
                 int finalLinhaAtual = linhaAtual;
                 int finalColunaAtual = colunaAtual;
-                if(!label[linhaAtual][colunaAtual].getText().equals("")) {
-                    button[linhaAtual][colunaAtual].addActionListener(e -> {
-                        finalA.getAndIncrement();
-                        c.add(button[finalLinhaAtual][finalColunaAtual]);
-                        if(finalA.getAndIncrement() == 1) {
-                            button[finalLinhaAtual][finalColunaAtual].setVisible(false);
-                            abrirCelula(finalLinhaAtual, finalColunaAtual);
-                        }
-                    });
-                }
+                    if(label[finalLinhaAtual][finalColunaAtual].getText().matches("[0-9]")){
+                        label[finalLinhaAtual][finalColunaAtual].setText(String.valueOf((Integer.parseInt(campos.get(a).toString())/(a+1))+1));
+                        button[linhaAtual][colunaAtual].addActionListener(e -> {
+                            finalA.getAndIncrement();
+                            c.add(button[finalLinhaAtual][finalColunaAtual]);
+                            if (finalA.getAndIncrement() == 1) {
+                                button[finalLinhaAtual][finalColunaAtual].setVisible(false);
+
+                                abrirCelula(finalLinhaAtual, finalColunaAtual);
+                            }
+                        });
+                    }else {
+                        label[linhaAtual][colunaAtual].setText(campos.get(a).toString());
+                        button[linhaAtual][colunaAtual].addActionListener(e -> {
+                            finalA.getAndIncrement();
+                            c.add(button[finalLinhaAtual][finalColunaAtual]);
+                            if (finalA.getAndIncrement() == 1) {
+                                button[finalLinhaAtual][finalColunaAtual].setVisible(false);
+
+                                    abrirCelula(finalLinhaAtual, finalColunaAtual);
+                            }
+                        });
+                    }
+
+
                 a++;
+
             }
         }
     }
@@ -98,28 +116,28 @@ public class Tabuleiro {
 
             int op = JOptionPane.showOptionDialog(null, "Abrir ou (Des)Marcar?", "Abrir ou (Des)Marcar", 1, 3, null, opcoes, null);
 
-            if(!objetivoAlcancado()) {
+            while(!objetivoAlcancado()) {
 
                 if (op == 0) {
                         abrirCampo(linhaAtual, colunaAtual);
-                        return;
-
+                        break;
 
                 } else if (op == 1) {
                     alternarMarcacao(linhaAtual, colunaAtual);
-                    return;
+                    break;
 
                 }
           }
 
             if(label[linhaAtual][colunaAtual].getText().equals("*")){
                 JOptionPane.showMessageDialog(null, "Você Perdeu!!!");
-                reiniciar();
-
+                abrirTabuleiro();
+                // reiniciar();
             }
         } catch(ExplosaoException ex){
             JOptionPane.showMessageDialog(null, "Você Perdeu!!!");
-            reiniciar();
+            abrirTabuleiro();
+           // reiniciar();
 
         }
     }
@@ -134,11 +152,12 @@ public class Tabuleiro {
                 button[a][b].setSize(45, 45);
                 button[a][b].setLocation(xaxis, yaxis);
                 button[a][b].setBackground(Color.LIGHT_GRAY);
+
                 button[a][b].addActionListener(e->{
                     abrirTabuleiro();
-                });
+                 });
                 //button[a][b].addMouseListener(this::mouseClicked);
-                label[a][b] = new JLabel("", JLabel.CENTER);
+                label[a][b] = new JLabel("?", JLabel.CENTER);
                 label[a][b].setSize(45, 45);
                 label[a][b].setLocation(xaxis, yaxis);
                 label[a][b].setBackground(Color.WHITE);
@@ -156,7 +175,7 @@ public class Tabuleiro {
 
     private void gerarCampos() {
 
-        frame = new JFrame("Campo Minado");
+
         frame.setSize(469, 580);
         frame.setResizable(false);
         frame.setLocationRelativeTo(null);
@@ -165,29 +184,16 @@ public class Tabuleiro {
         c = frame.getContentPane();
         c.setLayout(null);
         c.setBackground(Color.BLACK);
-
-        menubar = new JMenuBar();
         menu = new JMenu("Arquivo");
         newgame = new JMenuItem("Novo Jogo");
+        menubar = new JMenuBar();
         newgame.addActionListener(e -> {
-            limparCampos();
+
+            //campos.clear();
             executarJogo();
             associarVizinhos();
             sortearMinas();
-            for(int i=0;i<quantidadeDeLinhas;i++)
-            {
-                for(int j=0;j<quantidadeDeColunas;j++)
-                {
-                    button[i][j].setVisible(true);
-                    button[i][j].setEnabled(true);
-                    button[i][j].setBackground(Color.LIGHT_GRAY);
-                    label[i][j].setText("?");
-                    c.add(button[i][j]);
-                    c.add(label[i][j]);
-
-
-                }
-            }
+            limparCampos();
             field.setText("Jogo Iniciado");
             c.add(field);
         });
@@ -244,8 +250,9 @@ public class Tabuleiro {
     public void reiniciar() {
         campos.forEach(Campo::reiniciar);
         associarVizinhos();
+        executarJogo();
         sortearMinas();
-        limparCampos();
+        //limparCampos();
     }
 
 
@@ -293,11 +300,12 @@ public class Tabuleiro {
     }
 
     public void limparCampos(){
+        int a = 0;
         for(int linhaAtual = 0; linhaAtual < quantidadeDeLinhas; linhaAtual++) {
             for (int colunaAtual = 0; colunaAtual < quantidadeDeColunas; colunaAtual++) {
                 button[linhaAtual][colunaAtual].setVisible(true);
                 label[linhaAtual][colunaAtual].setText("?");
-                //c.add(button[linhaAtual][colunaAtual]);
+               // c.add(button[linhaAtual][colunaAtual]);
                // c.add(label[linhaAtual][colunaAtual]);
             }
         }
