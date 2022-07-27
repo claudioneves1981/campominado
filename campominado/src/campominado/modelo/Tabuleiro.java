@@ -14,14 +14,12 @@ public class Tabuleiro {
     public JFrame frame;
     public Container c;
     public JButton[][] button;
-    public JButton reset, exit;
     public JLabel[][] label;
     public JTextField field;
     JPanel panel;
     JMenu menu;
     JMenuBar menubar;
     public JMenuItem newgame, exitmenu;
-    public int chk = 0;
 
     public int quantidadeDeLinhas;
     public int quantidadeDeColunas;
@@ -40,13 +38,10 @@ public class Tabuleiro {
 
         frame = new JFrame("Campo Minado");
 
-
         gerarCampos();
         associarVizinhos();
         sortearMinas();
-        limparCampos();
-        //campos.clear();
-        //executarJogo();
+        executarJogo();
 
     }
 
@@ -55,13 +50,12 @@ public class Tabuleiro {
         try {
             boolean continuar = true;
 
-            while(continuar) {
-                int resposta = JOptionPane.showConfirmDialog(null, "Iniciar/ Outra Partida?(S/N)","Outra Partida",JOptionPane.YES_NO_OPTION);
-                if(resposta == JOptionPane.YES_OPTION) {
-                    continuar = false;
-                } else {
-                    reiniciar();
-                }
+            int resposta = JOptionPane.showConfirmDialog(null, "Iniciar/ Outra Partida?(S/N)","Outra Partida",JOptionPane.YES_NO_OPTION);
+            if(resposta == JOptionPane.NO_OPTION) {
+                continuar = false;
+            } else {
+                limparCampos();
+                reiniciar();
             }
         } catch(SairException e) {
             JOptionPane.showMessageDialog(null, "Adeus!");
@@ -76,33 +70,15 @@ public class Tabuleiro {
             for(int colunaAtual = 0; colunaAtual < quantidadeDeColunas; colunaAtual++) {
                 int finalLinhaAtual = linhaAtual;
                 int finalColunaAtual = colunaAtual;
-                    if(label[finalLinhaAtual][finalColunaAtual].getText().matches("[0-9]")){
-                        label[finalLinhaAtual][finalColunaAtual].setText(String.valueOf((Integer.parseInt(campos.get(a).toString())/(a+1))+1));
-                        button[linhaAtual][colunaAtual].addActionListener(e -> {
-                            finalA.getAndIncrement();
-                            c.add(button[finalLinhaAtual][finalColunaAtual]);
-                            if (finalA.getAndIncrement() == 1) {
-                                button[finalLinhaAtual][finalColunaAtual].setVisible(false);
-
-                                abrirCelula(finalLinhaAtual, finalColunaAtual);
-                            }
-                        });
-                    }else {
-                        label[linhaAtual][colunaAtual].setText(campos.get(a).toString());
-                        button[linhaAtual][colunaAtual].addActionListener(e -> {
-                            finalA.getAndIncrement();
-                            c.add(button[finalLinhaAtual][finalColunaAtual]);
-                            if (finalA.getAndIncrement() == 1) {
-                                button[finalLinhaAtual][finalColunaAtual].setVisible(false);
-
-                                    abrirCelula(finalLinhaAtual, finalColunaAtual);
-                            }
-                        });
-                    }
-
-
-                a++;
-
+                label[linhaAtual][colunaAtual].setText(campos.get(a).campoSimbolo());
+                button[linhaAtual][colunaAtual].addActionListener(e -> {
+                        finalA.getAndIncrement();
+                        if (finalA.get() == 1 ) {
+                           button[finalLinhaAtual][finalColunaAtual].setVisible(false);
+                            abrirCelula(finalLinhaAtual, finalColunaAtual);
+                        }
+                    });
+              a++;
             }
         }
     }
@@ -110,21 +86,20 @@ public class Tabuleiro {
 
         public void abrirCelula(int linhaAtual, int colunaAtual) {
 
-            Object[] opcoes = {"Abrir", "(Des)Marcar"};
-            int cont = 0;
         try {
 
+            Object[] opcoes = {"Abrir", "(Des)Marcar"};
             int op = JOptionPane.showOptionDialog(null, "Abrir ou (Des)Marcar?", "Abrir ou (Des)Marcar", 1, 3, null, opcoes, null);
 
-            while(!objetivoAlcancado()) {
+          if(!objetivoAlcancado()) {
 
                 if (op == 0) {
                         abrirCampo(linhaAtual, colunaAtual);
-                        break;
+                      return;
 
                 } else if (op == 1) {
                     alternarMarcacao(linhaAtual, colunaAtual);
-                    break;
+                    return;
 
                 }
           }
@@ -132,12 +107,11 @@ public class Tabuleiro {
             if(label[linhaAtual][colunaAtual].getText().equals("*")){
                 JOptionPane.showMessageDialog(null, "Você Perdeu!!!");
                 abrirTabuleiro();
-                // reiniciar();
+
             }
         } catch(ExplosaoException ex){
             JOptionPane.showMessageDialog(null, "Você Perdeu!!!");
             abrirTabuleiro();
-           // reiniciar();
 
         }
     }
@@ -152,16 +126,11 @@ public class Tabuleiro {
                 button[a][b].setSize(45, 45);
                 button[a][b].setLocation(xaxis, yaxis);
                 button[a][b].setBackground(Color.LIGHT_GRAY);
-
-                button[a][b].addActionListener(e->{
-                    abrirTabuleiro();
-                 });
-                //button[a][b].addMouseListener(this::mouseClicked);
+                button[a][b].addActionListener(e-> abrirTabuleiro());
                 label[a][b] = new JLabel("?", JLabel.CENTER);
                 label[a][b].setSize(45, 45);
                 label[a][b].setLocation(xaxis, yaxis);
                 label[a][b].setBackground(Color.WHITE);
-                //label[a][b].setForeground(Color.BLACK);
                 label[a][b].setVisible(true);
                 label[a][b].setOpaque(false);
                 c.add(label[a][b]);
@@ -175,7 +144,6 @@ public class Tabuleiro {
 
     private void gerarCampos() {
 
-
         frame.setSize(469, 580);
         frame.setResizable(false);
         frame.setLocationRelativeTo(null);
@@ -188,12 +156,8 @@ public class Tabuleiro {
         newgame = new JMenuItem("Novo Jogo");
         menubar = new JMenuBar();
         newgame.addActionListener(e -> {
-
-            //campos.clear();
-            executarJogo();
-            associarVizinhos();
-            sortearMinas();
             limparCampos();
+            reiniciar();
             field.setText("Jogo Iniciado");
             c.add(field);
         });
@@ -250,20 +214,11 @@ public class Tabuleiro {
     public void reiniciar() {
         campos.forEach(Campo::reiniciar);
         associarVizinhos();
-        executarJogo();
         sortearMinas();
-        //limparCampos();
     }
 
-
-
-    public void reiniciarSemSortearMinas() {
-        campos.forEach(Campo::reiniciar);
-    }
 
     public void abrirCampo(int linha, int coluna) {
-
-
         try {
             campos.stream()
                     .filter(campo ->
@@ -288,25 +243,11 @@ public class Tabuleiro {
 
     }
 
-    public long contarCampos() {
-        return campos.size();
-    }
-
-    public Campo getCampo(int linha, int coluna) {
-        return campos.stream()
-                .filter(campo -> campo.getLinha() == linha && campo.getColuna() == coluna)
-                .findFirst()
-                .get();
-    }
-
     public void limparCampos(){
-        int a = 0;
         for(int linhaAtual = 0; linhaAtual < quantidadeDeLinhas; linhaAtual++) {
             for (int colunaAtual = 0; colunaAtual < quantidadeDeColunas; colunaAtual++) {
                 button[linhaAtual][colunaAtual].setVisible(true);
                 label[linhaAtual][colunaAtual].setText("?");
-               // c.add(button[linhaAtual][colunaAtual]);
-               // c.add(label[linhaAtual][colunaAtual]);
             }
         }
     }

@@ -19,6 +19,7 @@ public class Campo {
     Campo(int linha, int coluna) {
         this.linha = linha;
         this.coluna = coluna;
+
     }
 
     void adicionarVizinho(Campo vizinho) {
@@ -72,12 +73,13 @@ public class Campo {
     }
 
     void reiniciar() {
+        vizinhos.clear();
         aberto = false;
         minado = false;
         marcado = false;
     }
 
-    public String toString() {
+    public String campoSimbolo() {
         if (marcado) {
             return "X";
         } else if (aberto && minado) {
@@ -95,20 +97,8 @@ public class Campo {
         return vizinhos.stream().noneMatch(vizinho -> vizinho.minado);
     }
 
-    public boolean isMarcado() {
-        return marcado;
-    }
-
     public boolean isMinado() {
         return minado;
-    }
-
-    public boolean isAberto() {
-        return aberto;
-    }
-
-    public boolean isFechado() {
-        return !aberto;
     }
 
     public int getLinha() {
